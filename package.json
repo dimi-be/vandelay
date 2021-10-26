@@ -1,0 +1,22 @@
+{
+  "name": "vandelay",
+  "version": "1.0.0",
+  "description": "Generate static websites from html",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimi-be/vandelay.git"
+  },
+  "author": "Dimitri Michaux",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/dimi-be/vandelay/issues"
+  },
+  "homepage": "https://github.com/dimi-be/vandelay#readme",
+  "devDependencies": {
+    "typescript": "^4.4.4"
+  }
+}

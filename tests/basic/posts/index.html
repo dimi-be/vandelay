@@ -2,13 +2,13 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Page Title</title>
+        <title>Posts</title>
     </head>
     <body>
 
         <h2>Posts</h2>
         <ul>
-            <li a-foreach="{post in posts}">
+            <li a-foreach="{post in posts}">import { readFile } from 'fs/promises';
                 {post.title}
             </li>
         </ul>

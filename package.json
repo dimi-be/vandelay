@@ -4,7 +4,8 @@
   "description": "Generate static websites from html",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run build && node ./dist/index.js ./tests/basic/posts",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/dimi-be/vandelay#readme",
   "devDependencies": {
+    "@types/node": "^16.11.6",
     "typescript": "^4.4.4"
   }
 }

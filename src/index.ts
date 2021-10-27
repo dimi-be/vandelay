@@ -9,5 +9,5 @@ console.log('rootDir', rootDir);
     const index = path.join(rootDir, 'index.html');
     const indexDoc = await FileRepository.OpenHtmlDocument(index);
 
-    console.log(indexDoc.getElementsByTagName('html')[0].innerHTML);
+    console.log(indexDoc.querySelectorAll('*[a-foreach]:not([a-foreach=""])')[0].innerHTML);
 })();

@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "preLaunchTask": "tsc: build - tsconfig.json",
             "command": "npm test",
             "name": "Run Script: test",
             "request": "launch",

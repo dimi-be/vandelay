@@ -32,8 +32,24 @@ describe('integration: Builder', function() {
             const document = new JSDOM(buffer).window.document;
 
             assert.equal(document.title, 'Basic Test');
+            assert.isDefined(document.getElementById('header'));
+            assert.lengthOf(document.getElementById('header').childNodes, 1);
             assert.equal(document.getElementById('header').childNodes[0].textContent.trim(), 'Basic Test');
+            assert.isDefined(document.getElementById('paragraph'));
+            assert.lengthOf(document.getElementById('paragraph').childNodes, 1);
             assert.equal(document.getElementById('paragraph').childNodes[0].textContent.trim(), 'Basic content');
         });
+
+        it('should add posts to index.html', async function() {
+            const builder = new Builder();
+            await builder.build(basicTestFiles, tmpFolderPath);
+
+            const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
+            const document = new JSDOM(buffer).window.document;
+
+            assert.equal(document.getElementById('posts').childElementCount, 2, 'Expected 2 posts');
+        });
     });
+
+    
 });

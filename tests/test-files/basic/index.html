@@ -9,5 +9,11 @@
         <p id="paragraph">
             Basic content
         </p>
+        <h2>Posts</h2>
+        <ul id="posts">
+            <li va-foreach="{post in posts}">
+                {post.title}
+            </li>
+        </ul>
     </body>
 </html>

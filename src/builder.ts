@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import os from 'os';
-import { Directory, NodeType } from "./filesystem";
+import { Directory, NodeType, File } from "./filesystem";
 import { FileRepository } from "./repositories/filerepository";
 
 export class Builder {
@@ -13,7 +13,9 @@ export class Builder {
         const targetFile = fs.openSync(targetFilePath, 'w');
 
         const postsDir = new Directory(path.join(srcPath, 'posts'));
-        const posts = postsDir.childNodes.filter(x => x.type == NodeType.file && x.extension == '.html' && x.name != 'index.html');
+        const posts = postsDir.childNodes
+            .filter(x => x.type == NodeType.file && x.extension == '.html' && x.name != 'index.html')
+            .map(x => <File>x);
 
         const postTpl = indexDoc.querySelector("[va-foreach]");
         const postsEl = postTpl.parentElement;
@@ -23,7 +25,7 @@ export class Builder {
         posts.forEach(post => {
             const postEl = <Element>postTpl.cloneNode(true);
             postEl.setAttribute('va-foreach', undefined);
-            postEl.innerHTML = postEl.innerHTML.replace('{post.title}', post.name);
+            postEl.innerHTML = postEl.innerHTML.replace('{post.title}', post.page.title);
             postsEl.appendChild(postEl);
         });
 

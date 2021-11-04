@@ -47,7 +47,11 @@ describe('integration: Builder', function() {
             const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
             const document = new JSDOM(buffer).window.document;
 
-            assert.equal(document.getElementById('posts').childElementCount, 2, 'Expected 2 posts');
+            const posts = document.querySelectorAll('#posts li');
+
+            assert.equal(posts.length, 2, 'Expected 2 posts');
+            assert.equal(posts[0].childNodes[0].textContent.trim(), 'Post 1');
+            assert.equal(posts[1].childNodes[0].textContent.trim(), 'Post 2');
         });
     });
 

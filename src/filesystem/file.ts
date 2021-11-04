@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { INode, NodeType } from './inode';
 import { NoFileError } from "./errors";
+import { Page } from "./page";
 
 export class File implements INode {
     private _path: string;
@@ -20,6 +21,10 @@ export class File implements INode {
 
     public get type(): NodeType {
         return NodeType.file;
+    }
+
+    public get page(): Page {
+        return new Page(this._path);
     }
 
     constructor(path: string) {

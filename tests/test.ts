@@ -6,8 +6,8 @@ import { assert } from "chai";
 import { Builder } from '../src/builder';
 import { JSDOM } from 'jsdom';
 
-const tmpFolderPath = path.resolve('tmp');
 const basicTestFiles = path.resolve('tests/test-files/basic');
+const tmpFolderPath = path.resolve('tmp');
 
 describe('integration: Builder', function() {
     this.beforeEach(function() {
@@ -17,16 +17,16 @@ describe('integration: Builder', function() {
 
     describe('build', function() {
         it('should create index.html', async function() {
-            const builder = new Builder();
-            await builder.build(basicTestFiles, tmpFolderPath);
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
 
             const files = fs.readdirSync(tmpFolderPath);
             assert.include(files, 'index.html');
         });
 
         it('should build index.html', async function() {
-            const builder = new Builder();
-            await builder.build(basicTestFiles, tmpFolderPath);
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
 
             const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
             const document = new JSDOM(buffer).window.document;
@@ -41,8 +41,8 @@ describe('integration: Builder', function() {
         });
 
         it('should add posts to index.html', async function() {
-            const builder = new Builder();
-            await builder.build(basicTestFiles, tmpFolderPath);
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
 
             const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
             const document = new JSDOM(buffer).window.document;

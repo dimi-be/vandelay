@@ -1,12 +1,16 @@
 import fs from "fs";
 import path from "path";
 import { JSDOM } from "jsdom";
-import { INode, NodeType } from "./inode";
-import { NoDirError, NoFileError } from "./errors";
-import { IPage } from "./ipage";
+import {
+    FileNode,
+    FileNodeType,
+    NoDirError,
+    NoFileError,
+    IMeta,
+} from ".";
 
 export class FileRepository {
-    public static async readDirectory(dir: string | INode): Promise<INode[]> {
+    public static async readDirectory(dir: string | FileNode): Promise<FileNode[]> {
         const dirPath = typeof dir === 'string' ? dir : dir.path;
 
         const stats = await fs.promises.stat(dirPath);
@@ -21,16 +25,16 @@ export class FileRepository {
             const stats = fs.statSync(childPath);
 
             if(stats.isDirectory()) {
-                return <INode>{
-                    type: NodeType.directory,
+                return <FileNode>{
+                    type: FileNodeType.directory,
                     name: path.basename(x),
                     path: childPath,
                 };
             }
 
             if(stats.isFile()) {
-                return <INode>{
-                    type: NodeType.file,
+                return <FileNode>{
+                    type: FileNodeType.file,
                     name: path.basename(x),
                     path: childPath,
                     extension: path.extname(x),
@@ -41,22 +45,45 @@ export class FileRepository {
         }).filter(x => x);
     }
 
-    public static async openHtmlDocument(path: string): Promise<Document> {
-        const buffer = await fs.promises.readFile(path);
+    public static async openHtmlDocument(node: FileNode): Promise<Document> {
+        if(node.type !== FileNodeType.file) {
+            throw new NoFileError(node.path);
+        }
+
+        const buffer = await fs.promises.readFile(node.path);
         const jsdom = new JSDOM(buffer);
         return jsdom.window.document;
     }
 
-    public static async openPage(node: INode): Promise<IPage>{
-        if(node.type !== NodeType.file) {
-            throw new NoFileError(node.path);
-        }
-
-        const document = await FileRepository.openHtmlDocument(node.path);
+    public static async getPageMeta(node: FileNode): Promise<IMeta>{
+        const document = await FileRepository.openHtmlDocument(node);
 
         return {
-            path: node.path,
+            node,
             title: document.title,
         };
+    }
+
+    public static ensureNode(nodePath: string): FileNode | undefined {
+        const stats = fs.statSync(nodePath);
+
+        if(stats.isDirectory()) {
+            return <FileNode>{
+                type: FileNodeType.directory,
+                name: path.basename(nodePath),
+                path: nodePath,
+            };
+        }
+
+        if(stats.isFile()) {
+            return <FileNode>{
+                type: FileNodeType.file,
+                name: path.basename(nodePath),
+                path: nodePath,
+                extension: path.extname(nodePath),
+            }
+        }
+
+        return undefined;
     }
 }

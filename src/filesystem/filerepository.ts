@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
+import { JSDOM } from "jsdom";
 import { INode, NodeType } from "./inode";
-import { NoDirError } from "./errors";
+import { NoDirError, NoFileError } from "./errors";
+import { IPage } from "./ipage";
 
 export class FileRepository {
     public static async readDirectory(dir: string | INode): Promise<INode[]> {
@@ -22,7 +24,7 @@ export class FileRepository {
                 return <INode>{
                     type: NodeType.directory,
                     name: path.basename(x),
-                    path: x,
+                    path: childPath,
                 };
             }
 
@@ -30,12 +32,31 @@ export class FileRepository {
                 return <INode>{
                     type: NodeType.file,
                     name: path.basename(x),
-                    path: x,
+                    path: childPath,
                     extension: path.extname(x),
                 }
             }
 
             return undefined;
         }).filter(x => x);
+    }
+
+    public static async openHtmlDocument(path: string): Promise<Document> {
+        const buffer = await fs.promises.readFile(path);
+        const jsdom = new JSDOM(buffer);
+        return jsdom.window.document;
+    }
+
+    public static async openPage(node: INode): Promise<IPage>{
+        if(node.type !== NodeType.file) {
+            throw new NoFileError(node.path);
+        }
+
+        const document = await FileRepository.openHtmlDocument(node.path);
+
+        return {
+            path: node.path,
+            title: document.title,
+        };
     }
 }

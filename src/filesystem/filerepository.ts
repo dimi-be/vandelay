@@ -22,26 +22,7 @@ export class FileRepository {
         const children = fs.readdirSync(dirPath);
         return children.map(x => {
             const childPath = path.join(dirPath, x);
-            const stats = fs.statSync(childPath);
-
-            if(stats.isDirectory()) {
-                return <FileNode>{
-                    type: FileNodeType.directory,
-                    name: path.basename(x),
-                    path: childPath,
-                };
-            }
-
-            if(stats.isFile()) {
-                return <FileNode>{
-                    type: FileNodeType.file,
-                    name: path.basename(x),
-                    path: childPath,
-                    extension: path.extname(x),
-                }
-            }
-
-            return undefined;
+            return FileRepository.ensureNode(childPath);
         }).filter(x => x);
     }
 
@@ -66,21 +47,24 @@ export class FileRepository {
 
     public static ensureNode(nodePath: string): FileNode | undefined {
         const stats = fs.statSync(nodePath);
+        const basicNode = {
+            special: path.basename(nodePath).startsWith('_'),
+            name: path.basename(nodePath),
+            path: nodePath,
+        };
 
         if(stats.isDirectory()) {
             return <FileNode>{
                 type: FileNodeType.directory,
-                name: path.basename(nodePath),
-                path: nodePath,
+                ...basicNode,
             };
         }
 
         if(stats.isFile()) {
             return <FileNode>{
                 type: FileNodeType.file,
-                name: path.basename(nodePath),
-                path: nodePath,
                 extension: path.extname(nodePath),
+                ...basicNode,
             }
         }
 

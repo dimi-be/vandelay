@@ -52,7 +52,7 @@ export class Foreach extends Processor {
         return {
             varName: statementParts[0],
             colName: statementParts[2],
-            collection: collection,
+            collection: collection.filter(x => !x.special),
         }
     }
 }

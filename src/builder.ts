@@ -92,7 +92,14 @@ export class Builder {
 
         const srcPath = node.path;
         const relPath = srcPath.substr(this._srcPath.length);
-        const targetPath = path.join(this._targetPath, relPath);
+        
+        if(!node.special) {
+            const targetPath = path.join(this._targetPath, relPath);
+            return targetPath;
+        }
+
+        const relDir = relPath.substr(0, relPath.length - node.name.length);
+        const targetPath = path.join(this._targetPath, relDir, node.name.substr(1));
 
         return targetPath;
     }

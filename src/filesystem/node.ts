@@ -2,11 +2,13 @@ import { FileRepository } from ".";
 
 export type FileNode = {
     type: FileNodeType.directory;
+    special: boolean;
     path: string;
     name: string;
     children: FileNode[];
 } | {
     type: FileNodeType.file;
+    special: boolean;
     path: string;
     name: string;
     extension: string;

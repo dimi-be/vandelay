@@ -16,29 +16,29 @@ describe('integration: Builder', function() {
     });
 
     describe('build', function() {
-        // it('should create index.html', async function() {
-        //     const builder = new Builder(basicTestFiles, tmpFolderPath);
-        //     await builder.build();
+        it('should create index.html', async function() {
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
 
-        //     const files = fs.readdirSync(tmpFolderPath);
-        //     assert.include(files, 'index.html');
-        // });
+            const files = fs.readdirSync(tmpFolderPath);
+            assert.include(files, 'index.html');
+        });
 
-        // it('should build index.html', async function() {
-        //     const builder = new Builder(basicTestFiles, tmpFolderPath);
-        //     await builder.build();
+        it('should build index.html', async function() {
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
 
-        //     const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
-        //     const document = new JSDOM(buffer).window.document;
+            const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
+            const document = new JSDOM(buffer).window.document;
 
-        //     assert.equal(document.title, 'Basic Test');
-        //     assert.isDefined(document.getElementById('header'));
-        //     assert.lengthOf(document.getElementById('header').childNodes, 1);
-        //     assert.equal(document.getElementById('header').childNodes[0].textContent.trim(), 'Basic Test');
-        //     assert.isDefined(document.getElementById('paragraph'));
-        //     assert.lengthOf(document.getElementById('paragraph').childNodes, 1);
-        //     assert.equal(document.getElementById('paragraph').childNodes[0].textContent.trim(), 'Basic content');
-        // });
+            assert.equal(document.title, 'Basic Test');
+            assert.isDefined(document.getElementById('header'));
+            assert.lengthOf(document.getElementById('header').childNodes, 1);
+            assert.equal(document.getElementById('header').childNodes[0].textContent.trim(), 'Basic Test');
+            assert.isDefined(document.getElementById('paragraph'));
+            assert.lengthOf(document.getElementById('paragraph').childNodes, 1);
+            assert.equal(document.getElementById('paragraph').childNodes[0].textContent.trim(), 'Basic content');
+        });
 
         it('should add posts to index.html', async function() {
             const builder = new Builder(basicTestFiles, tmpFolderPath);

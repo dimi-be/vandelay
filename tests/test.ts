@@ -40,7 +40,25 @@ describe('integration: Builder', function() {
             assert.equal(document.getElementById('paragraph').childNodes[0].textContent.trim(), 'Basic content');
         });
 
-        it('should add posts to index.html', async function() {
+        it('should add posts and pages to index.html', async function() {
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
+
+            const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
+            const document = new JSDOM(buffer).window.document;
+
+            const posts = document.querySelectorAll('#posts li');
+            const pages = document.querySelectorAll('#pages li');
+
+            assert.equal(posts.length, 2);
+            assert.equal(posts[0].childNodes[0].textContent.trim(), 'Post 1');
+            assert.equal(posts[1].childNodes[0].textContent.trim(), 'Post 2');
+            assert.equal(pages.length, 2);
+            assert.equal(pages[0].childNodes[0].textContent.trim(), 'About');
+            assert.equal(pages[1].childNodes[0].textContent.trim(), 'Contact');
+        });
+
+        it('should add posts to posts/index.html', async function() {
             const builder = new Builder(basicTestFiles, tmpFolderPath);
             await builder.build();
 

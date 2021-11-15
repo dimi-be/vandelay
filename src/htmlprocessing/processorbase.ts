@@ -1,6 +1,6 @@
 import { FileNode } from "../filesystem";
 
-export abstract class Processor{
+export abstract class ProcessorBase {
     public constructor(protected _rootNode: FileNode){ }
 
     public abstract process(document: Document): Promise<void>;

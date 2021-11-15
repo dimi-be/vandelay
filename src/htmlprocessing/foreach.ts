@@ -1,5 +1,9 @@
-import { FileNode, FileNodeType, FileRepository } from "../filesystem";
-import { Processor } from "./processor";
+import {
+    FileNode,
+    FileNodeType,
+    getPageMeta
+} from "../filesystem";
+import { ProcessorBase } from "./processorbase";
 
 interface IForEachStatement{
     varName: string;
@@ -9,7 +13,7 @@ interface IForEachStatement{
 
 const ATTRIBUTE_NAME = "va-foreach";
 
-export class Foreach extends Processor {
+export class Foreach extends ProcessorBase {
     public async process(document: Document) {
         const templates = document.querySelectorAll(`[${ATTRIBUTE_NAME}]`);
 
@@ -18,7 +22,7 @@ export class Foreach extends Processor {
             const parent = template.parentElement;
             
             for(const item of statement.collection) {
-                const itemMeta = await FileRepository.getPageMeta(item);
+                const itemMeta = await getPageMeta(item);
                 const postEl = <Element>template.cloneNode(true);
                 postEl.removeAttribute(ATTRIBUTE_NAME);
                 postEl.innerHTML = postEl.innerHTML.replace(`{${statement.varName}.title}`, itemMeta.title);

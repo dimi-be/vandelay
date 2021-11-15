@@ -1,4 +1,5 @@
 import fs from "fs";
+import os from 'os';
 import path from "path";
 import { JSDOM } from "jsdom";
 import {
@@ -9,65 +10,94 @@ import {
     IMeta,
 } from ".";
 
-export class FileRepository {
-    public static async readDirectory(dir: string | FileNode): Promise<FileNode[]> {
-        const dirPath = typeof dir === 'string' ? dir : dir.path;
 
-        const stats = await fs.promises.stat(dirPath);
+export async function readDirectory(dir: string | FileNode): Promise<FileNode[]> {
+    const dirPath = typeof dir === 'string' ? dir : dir.path;
 
-        if(!stats.isDirectory()) {
-            throw new NoDirError(dirPath);
-        }
+    const stats = await fs.promises.stat(dirPath);
 
-        const children = fs.readdirSync(dirPath);
-        return children.map(x => {
-            const childPath = path.join(dirPath, x);
-            return FileRepository.ensureNode(childPath);
-        }).filter(x => x);
+    if(!stats.isDirectory()) {
+        throw new NoDirError(dirPath);
     }
 
-    public static async openHtmlDocument(node: FileNode): Promise<Document> {
-        if(node.type !== FileNodeType.file) {
-            throw new NoFileError(node.path);
-        }
+    const children = fs.readdirSync(dirPath);
+    return (await Promise.all(children.map(async x => {
+        const childPath = path.join(dirPath, x);
+        return await ensureNode(childPath);
+    }))).filter(x => x);
+};
 
-        const buffer = await fs.promises.readFile(node.path);
-        const jsdom = new JSDOM(buffer);
-        return jsdom.window.document;
+export async function openHtmlDocument(node: FileNode): Promise<Document> {
+    if(node.type !== FileNodeType.file) {
+        throw new NoFileError(node.path);
     }
 
-    public static async getPageMeta(node: FileNode): Promise<IMeta>{
-        const document = await FileRepository.openHtmlDocument(node);
+    const buffer = await fs.promises.readFile(node.path);
+    const jsdom = new JSDOM(buffer);
+    return jsdom.window.document;
+}
 
-        return {
-            node,
-            title: document.title,
+export async function saveHtmlDocument(targetPath: string, document: Document) {
+    const targetDir = path.dirname(targetPath);
+    await fs.promises.mkdir(targetDir, {recursive: true});
+
+    const targetFile = await fs.promises.open(targetPath, 'w');
+    await targetFile.write('<!DOCTYPE html>');
+    await targetFile.write(os.EOL);
+    await targetFile.write(document.querySelector('html').outerHTML);
+    await targetFile.close();
+}
+
+export async function getPageMeta(node: FileNode): Promise<IMeta>{
+    const document = await openHtmlDocument(node);
+
+    return {
+        node,
+        title: document.title,
+    };
+}
+
+export async function ensureNode(nodePath: string): Promise<FileNode | undefined> {
+    const stats = await fs.promises.stat(nodePath);
+    const basicNode = {
+        special: path.basename(nodePath).startsWith('_'),
+        name: path.basename(nodePath),
+        path: nodePath,
+    };
+
+    if(stats.isDirectory()) {
+        return <FileNode>{
+            type: FileNodeType.directory,
+            ...basicNode,
         };
     }
 
-    public static ensureNode(nodePath: string): FileNode | undefined {
-        const stats = fs.statSync(nodePath);
-        const basicNode = {
-            special: path.basename(nodePath).startsWith('_'),
-            name: path.basename(nodePath),
-            path: nodePath,
-        };
-
-        if(stats.isDirectory()) {
-            return <FileNode>{
-                type: FileNodeType.directory,
-                ...basicNode,
-            };
+    if(stats.isFile()) {
+        return <FileNode>{
+            type: FileNodeType.file,
+            extension: path.extname(nodePath),
+            ...basicNode,
         }
-
-        if(stats.isFile()) {
-            return <FileNode>{
-                type: FileNodeType.file,
-                extension: path.extname(nodePath),
-                ...basicNode,
-            }
-        }
-
-        return undefined;
     }
+
+    return undefined;
+}
+
+export function targetPathFromNode(node: FileNode): string {
+    if(!node.path.startsWith(this._srcPath)) {
+        throw new Error('File is not in source path');
+    }
+
+    const srcPath = node.path;
+    const relPath = srcPath.substr(this._srcPath.length);
+    
+    if(!node.special) {
+        const targetPath = path.join(this._targetPath, relPath);
+        return targetPath;
+    }
+
+    const relDir = relPath.substr(0, relPath.length - node.name.length);
+    const targetPath = path.join(this._targetPath, relDir, node.name.substr(1));
+
+    return targetPath;
 }

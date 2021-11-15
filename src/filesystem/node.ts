@@ -1,4 +1,4 @@
-import { FileRepository } from ".";
+import { readDirectory, ensureNode } from ".";
 
 export type FileNode = {
     type: FileNodeType.directory;
@@ -20,10 +20,10 @@ export enum FileNodeType {
 };
 
 export async function buildNodeTree(root: string | FileNode): Promise<FileNode> {
-    const node = (typeof root == "string") ? FileRepository.ensureNode(root) : root;
+    const node = (typeof root == "string") ? await ensureNode(root) : root;
 
     if(node.type == FileNodeType.directory) {
-        node.children = await FileRepository.readDirectory(node);
+        node.children = await readDirectory(node);
         
         await Promise.all(node.children.map(x => buildNodeTree(x)));
     }

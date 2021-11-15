@@ -4,17 +4,22 @@ import os from 'os';
 import {
     FileNode,
     FileNodeType,
+    buildNodeTree,
     FileRepository,
+    NoDirError,
 } from "./filesystem";
+import { Foreach } from "./htmlprocessing";
 
 export class Builder {
+    private _rootNode: FileNode;
+
     constructor(private _srcPath: string, private _targetPath: string){
 
     }
 
     public async build(){
-        const srcDir = FileRepository.ensureNode(this._srcPath);
-        await this._processDirectory(srcDir);
+        this._rootNode = await buildNodeTree(this._srcPath);
+        await this._processTree(this._rootNode);
 
         // const index = path.join(srcPath, 'index.html');
         // const indexDoc = await FileRepository.openHtmlDocument(index);
@@ -46,25 +51,34 @@ export class Builder {
         // fs.closeSync(targetFile);
     }
 
-    private async _processDirectory(node: FileNode) {
-        const nodes = await FileRepository.readDirectory(node);
-
-        for(const node of nodes) {
-            if(node.type == FileNodeType.file) {
-                await this._processFile(node);
-            }
-
-            if(node.type == FileNodeType.directory) {
-                //this._processDirectory(node);
-            }
+    private async _processTree(node: FileNode) {
+        if(node.type != FileNodeType.directory) {
+            throw new NoDirError(node.path);
         }
+
+        await Promise.all(node.children.map(child => {
+            if(child.type == FileNodeType.file) {
+                return this._processFile(child);
+            }
+
+            if(child.type == FileNodeType.directory) {
+                return this._processTree(child);
+            }
+        }));
     }
 
     private async _processFile(node: FileNode) {
+        const processor = new Foreach(this._rootNode);
+
         const srcDoc = await FileRepository.openHtmlDocument(node);
         const targetPath = this._targetPathFromNode(node);
-        const targetFile = await fs.promises.open(targetPath, 'w');
+        const targetDir = path.dirname(targetPath);
 
+        await processor.process(srcDoc);
+
+        await fs.promises.mkdir(targetDir, {recursive: true});
+
+        const targetFile = await fs.promises.open(targetPath, 'w');
         await targetFile.write('<!DOCTYPE html>');
         await targetFile.write(os.EOL);
         await targetFile.write(srcDoc.querySelector('html').outerHTML);

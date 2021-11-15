@@ -83,21 +83,21 @@ export async function ensureNode(nodePath: string): Promise<FileNode | undefined
     return undefined;
 }
 
-export function targetPathFromNode(node: FileNode): string {
-    if(!node.path.startsWith(this._srcPath)) {
+export function targetPathFromNode(node: FileNode, srcDir: string, targetDir: string): string {
+    if(!node.path.startsWith(srcDir)) {
         throw new Error('File is not in source path');
     }
 
     const srcPath = node.path;
-    const relPath = srcPath.substr(this._srcPath.length);
+    const relPath = srcPath.substr(srcDir.length);
     
     if(!node.special) {
-        const targetPath = path.join(this._targetPath, relPath);
+        const targetPath = path.join(targetDir, relPath);
         return targetPath;
     }
 
     const relDir = relPath.substr(0, relPath.length - node.name.length);
-    const targetPath = path.join(this._targetPath, relDir, node.name.substr(1));
+    const targetPath = path.join(targetDir, relDir, node.name.substr(1));
 
     return targetPath;
 }

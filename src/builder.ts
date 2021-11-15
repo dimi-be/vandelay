@@ -39,7 +39,7 @@ export class Builder {
 
     private async _processFile(node: FileNode) {
         const srcDoc = await openHtmlDocument(node);
-        const targetPath = targetPathFromNode(node);
+        const targetPath = targetPathFromNode(node, this._srcPath, this._targetPath);
         await this._htmlProcessor.process(srcDoc);
         await saveHtmlDocument(targetPath, srcDoc);
     }

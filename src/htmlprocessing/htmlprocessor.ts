@@ -1,5 +1,5 @@
 import { FileNode } from "../filesystem";
-import { ProcessorBase } from ".";
+import { ProcessorBase } from "./processorbase";
 import { Foreach } from "./foreach";
 
 export class HtmlProcessor extends ProcessorBase {

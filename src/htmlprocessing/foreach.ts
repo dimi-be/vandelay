@@ -1,3 +1,4 @@
+import moment from "moment";
 import {
     FileNode,
     FileNodeType,
@@ -30,7 +31,7 @@ export class Foreach extends ProcessorBase {
                     let value: string;
 
                     if((<any>itemMeta)[key] instanceof Date) {
-                        value = (<Date>(<any>itemMeta)[key]).toISOString();
+                        value = moment((<Date>(<any>itemMeta)[key])).format('YYYY-MM-DDTHH:mm:ss')
                     } else {
                         value = '' + (<any>itemMeta)[key];
                     }

@@ -96,28 +96,13 @@ describe('integration: Builder', function() {
             assert.equal(getPostTitle(posts[0]), 'Post 1');
             assert.equal(getPostMeta(posts[0], 'author'), 'Author: John Doe');
             assert.equal(getPostMeta(posts[0], 'description'), 'Description: Lorem ipsum dolor sit amet');
+            assert.equal(getPostMeta(posts[0], 'created'), 'Created: 2021-10-26T15:15:00');
+            assert.equal(getPostMeta(posts[0], 'modified'), 'Modified: 2021-10-26T18:00:00');
             assert.equal(getPostTitle(posts[1]), 'Post 2');
             assert.equal(getPostMeta(posts[1], 'author'), 'Author: John Doe');
             assert.equal(getPostMeta(posts[1], 'description'), 'Description: Consectetur adipiscing elit');
-        });
-
-        it('should add posts meta dates to index.html', async function() {
-            const builder = new Builder(basicTestFiles, tmpFolderPath);
-            await builder.build();
-
-            const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
-            const document = new JSDOM(buffer).window.document;
-
-            const posts = document.querySelectorAll('#posts li');
-            const pages = document.querySelectorAll('#pages li');
-
-            assert.equal(posts.length, 2);
-            // assert.equal(getPostTitle(posts[0]), 'Post 1');
-            // assert.equal(getPostMeta(posts[0], 'author'), 'Author: John Doe');
-            // assert.equal(getPostMeta(posts[0], 'description'), 'Description: Lorem ipsum dolor sit amet');
-            // assert.equal(getPostTitle(posts[1]), 'Post 2');
-            // assert.equal(getPostMeta(posts[1], 'author'), 'Author: John Doe');
-            // assert.equal(getPostMeta(posts[1], 'description'), 'Description: Consectetur adipiscing elit');
+            assert.equal(getPostMeta(posts[1], 'created'), 'Created: 2021-11-02T22:45:00');
+            assert.equal(getPostMeta(posts[1], 'modified'), 'Modified: 2021-11-03T09:00:00');
         });
     });
 

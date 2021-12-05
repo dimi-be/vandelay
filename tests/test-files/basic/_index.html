@@ -12,7 +12,11 @@
         <h2>Posts</h2>
         <ul id="posts">
             <li va-foreach="{post in posts}">
-                {post.title}
+                <h3>{post.title}</h3>
+                <div class="author">Author: {post.author}</div>
+                <div class="description">Description: {post.description}</div>
+                <div class="created">Created: <time datetime="{post.created}">{post.created}</time></div>
+                <div class="modified">Modified: <time datetime="{post.modified}">{post.created}</time></div>
             </li>
         </ul>
         <h2>Pages</h2>

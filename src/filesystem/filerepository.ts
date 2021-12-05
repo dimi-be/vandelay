@@ -48,12 +48,35 @@ export async function saveHtmlDocument(targetPath: string, document: Document) {
     await targetFile.close();
 }
 
+const _getMetaTagString = (name: string, meta: {name: string, content: string}[]) => {
+    const tag = meta.filter(x => x.name == name).pop();
+    return tag ? tag.content : undefined;
+};
+
+const _getMetaTagDate = (name: string, meta: {name: string, content: string}[]) => {
+    const value = _getMetaTagString(name, meta);
+    return value ? new Date(value) : undefined;
+};
+
 export async function getPageMeta(node: FileNode): Promise<IMeta>{
     const document = await openHtmlDocument(node);
+    const metaTags = document.getElementsByTagName('meta');
+    const meta: {name: string, content: string}[] = [];
+
+    for(let i=0 ; i < metaTags.length ; i++) {
+        meta.push({
+            name: metaTags[i].getAttribute('name'),
+            content: metaTags[i].getAttribute('content'),
+        });
+    }
 
     return {
         node,
         title: document.title,
+        author: _getMetaTagString('author', meta),
+        description: _getMetaTagString('description', meta),
+        created: _getMetaTagDate('created', meta),
+        modified: _getMetaTagDate('modified', meta),
     };
 }
 

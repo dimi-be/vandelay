@@ -9,6 +9,16 @@ import { JSDOM } from 'jsdom';
 const basicTestFiles = path.resolve('tests/test-files/basic');
 const tmpFolderPath = path.resolve('tmp');
 
+function getPostTitle(el: Element): string {
+    const h = el.getElementsByTagName('h3');
+    return h.length != 1 ? undefined : h[0].childNodes[0].textContent.trim();
+}
+
+function getPostMeta(el: Element, className: string): string {
+    const h = el.getElementsByClassName(className);
+    return h.length != 1 ? undefined : h[0].childNodes[0].textContent.trim();
+}
+
 describe('integration: Builder', function() {
     this.beforeEach(function() {
         execSync(`rm -rf ${tmpFolderPath}`);
@@ -51,8 +61,8 @@ describe('integration: Builder', function() {
             const pages = document.querySelectorAll('#pages li');
 
             assert.equal(posts.length, 2);
-            assert.equal(posts[0].childNodes[0].textContent.trim(), 'Post 1');
-            assert.equal(posts[1].childNodes[0].textContent.trim(), 'Post 2');
+            assert.equal(getPostTitle(posts[0]), 'Post 1');
+            assert.equal(getPostTitle(posts[1]), 'Post 2');
             assert.equal(pages.length, 2);
             assert.equal(pages[0].childNodes[0].textContent.trim(), 'About');
             assert.equal(pages[1].childNodes[0].textContent.trim(), 'Contact');
@@ -68,8 +78,46 @@ describe('integration: Builder', function() {
             const posts = document.querySelectorAll('#posts li');
 
             assert.equal(posts.length, 2);
-            assert.equal(posts[0].childNodes[0].textContent.trim(), 'Post 1');
-            assert.equal(posts[1].childNodes[0].textContent.trim(), 'Post 2');
+            assert.equal(getPostTitle(posts[0]), 'Post 1');
+            assert.equal(getPostTitle(posts[1]), 'Post 2');
+        });
+
+        it('should add posts meta data to index.html', async function() {
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
+
+            const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
+            const document = new JSDOM(buffer).window.document;
+
+            const posts = document.querySelectorAll('#posts li');
+            const pages = document.querySelectorAll('#pages li');
+
+            assert.equal(posts.length, 2);
+            assert.equal(getPostTitle(posts[0]), 'Post 1');
+            assert.equal(getPostMeta(posts[0], 'author'), 'Author: John Doe');
+            assert.equal(getPostMeta(posts[0], 'description'), 'Description: Lorem ipsum dolor sit amet');
+            assert.equal(getPostTitle(posts[1]), 'Post 2');
+            assert.equal(getPostMeta(posts[1], 'author'), 'Author: John Doe');
+            assert.equal(getPostMeta(posts[1], 'description'), 'Description: Consectetur adipiscing elit');
+        });
+
+        it('should add posts meta dates to index.html', async function() {
+            const builder = new Builder(basicTestFiles, tmpFolderPath);
+            await builder.build();
+
+            const buffer = fs.readFileSync(path.join(tmpFolderPath, 'index.html'));
+            const document = new JSDOM(buffer).window.document;
+
+            const posts = document.querySelectorAll('#posts li');
+            const pages = document.querySelectorAll('#pages li');
+
+            assert.equal(posts.length, 2);
+            // assert.equal(getPostTitle(posts[0]), 'Post 1');
+            // assert.equal(getPostMeta(posts[0], 'author'), 'Author: John Doe');
+            // assert.equal(getPostMeta(posts[0], 'description'), 'Description: Lorem ipsum dolor sit amet');
+            // assert.equal(getPostTitle(posts[1]), 'Post 2');
+            // assert.equal(getPostMeta(posts[1], 'author'), 'Author: John Doe');
+            // assert.equal(getPostMeta(posts[1], 'description'), 'Description: Consectetur adipiscing elit');
         });
     });
 

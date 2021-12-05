@@ -25,7 +25,19 @@ export class Foreach extends ProcessorBase {
                 const itemMeta = await getPageMeta(item);
                 const postEl = <Element>template.cloneNode(true);
                 postEl.removeAttribute(ATTRIBUTE_NAME);
-                postEl.innerHTML = postEl.innerHTML.replace(`{${statement.varName}.title}`, itemMeta.title);
+
+                for(let key in itemMeta) {
+                    let value: string;
+
+                    if((<any>itemMeta)[key] instanceof Date) {
+                        value = (<Date>(<any>itemMeta)[key]).toISOString();
+                    } else {
+                        value = '' + (<any>itemMeta)[key];
+                    }
+
+                    postEl.innerHTML = postEl.innerHTML.replaceAll(`{${statement.varName}.${key}}`, value);
+                }
+
                 parent.appendChild(postEl);
             }
 

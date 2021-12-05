@@ -1,3 +1,4 @@
+import "./polyfills";
 import {
     FileNode,
     FileNodeType,
@@ -8,6 +9,7 @@ import {
     targetPathFromNode,
 } from "./filesystem";
 import { HtmlProcessor } from "./htmlprocessing";
+
 
 export class Builder {
     private _rootNode: FileNode;
